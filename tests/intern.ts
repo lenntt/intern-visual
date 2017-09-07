@@ -19,9 +19,8 @@ export const loaders = {
 export const loaderOptions = {
 	baseUrl: `${ destination }`,
 	packages: [
-		{ name: 'ts-helpers', location: `../node_modules/ts-helpers`, main: 'index.js' },
-		{ name: 'intern-visual', location: `src` },
-		{ name: 'tests', location: `tests` }
+		{ name: 'intern-visual', location: 'src' },
+		{ name: 'tests', location: 'tests' }
 	]
 };
 

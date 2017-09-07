@@ -1,6 +1,6 @@
-import { PNG, PNGOptions } from 'pngjs';
+import { PNG, PNGOptions } from 'intern/dojo/node!pngjs';
 import { Report, RGBAColorArray, RGBColor, RGBAColor } from '../../interfaces';
-import { dirname } from 'path';
+import { dirname } from 'intern/dojo/node!path';
 import { createWriteStream } from 'fs';
 import mkdirp = require('mkdirp');
 
@@ -37,7 +37,7 @@ function savePng(filename: string, png: PNG): Promise<void> {
 				stream.on('error', function (error: Error) {
 					reject(error);
 				});
-				png.pack().pipe(stream);
+				(<NodeJS.ReadableStream><any>png.pack()).pipe(stream);
 			}
 		});
 	});
@@ -47,7 +47,7 @@ export default function (report: Report, filename: string, options: Options): Pr
 	return new Promise<void>(function (resolve, reject) {
 		const width = report.baseline.width;
 		const height = report.baseline.height;
-		let error: Error = null;
+		let error: Error | undefined;
 
 		const png = createImage(width, height, options);
 		png.on('error', function (err) {

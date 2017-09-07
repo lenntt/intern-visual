@@ -1,4 +1,4 @@
-import { join as joinPath, extname, basename } from 'path';
+import { join as joinPath, extname, basename } from 'intern/dojo/node!path';
 import { VisualRegressionTest, AssertionResult } from '../../assert';
 import globalConfig from '../../config';
 import getRGBA from '../../util/getRGBA';
@@ -84,15 +84,15 @@ export default class {
 	private _testMetadata: { [ key: string ]: TestMetadata[] } = {};
 
 	constructor(config: ReportConfig) {
-		const baseDirectory = 'directory' in config ? config.directory : globalConfig.directory;
+		const baseDirectory = 'directory' in config ? config.directory! : globalConfig.directory!;
 		const reportLocation  = 'reportLocation' in config ?
-			config.reportLocation : globalConfig.report.reportLocation;
+			config.reportLocation! : globalConfig.report.reportLocation!;
 
 		this.reportLocation = constructDirectory(baseDirectory, reportLocation);
-		this.reportUnusedBaselines = 'reportUnusedBaselines' in config ?
-			config.reportUnusedBaselines : globalConfig.report.reportUnusedBaselines;
+		this.reportUnusedBaselines = ('reportUnusedBaselines' in config ?
+			config.reportUnusedBaselines : globalConfig.report.reportUnusedBaselines)!;
 
-		this.errorColor = getRGBA(config.errorColor || '#F00');
+		this.errorColor = getRGBA(config.errorColor || '#F00')!;
 	}
 
 	addNote(note: Note): void {
@@ -104,13 +104,12 @@ export default class {
 		metadatas.push(metadata);
 	}
 
-	writeTest(test: VisualRegressionTest): Promise<any> {
-		const results: AssertionResult[] = test.visualResults;
-
-		if (!results) {
+	writeTest(test: VisualRegressionTest) {
+		if (!test.visualResults) {
 			return Promise.resolve();
 		}
 
+		const results: AssertionResult[] = test.visualResults!;
 		const testDirectory = getTestDirectory(test.parent);
 		const directory = joinPath(this.reportLocation, testDirectory);
 
@@ -119,10 +118,7 @@ export default class {
 			const metadata: TestMetadata = {
 				result,
 				directory,
-				testDirectory,
-				baseline: null,
-				difference: null,
-				screenshot: null
+				testDirectory
 			};
 
 			this.appendMetadata(test.id, metadata);
@@ -146,13 +142,14 @@ export default class {
 						else {
 							this.addNote({
 								level: 'error',
-								message: `Failed to write screenshot. Missing buffer.`,
+								message: 'Failed to write screenshot. Missing buffer.',
 								type: 'image write'
 							});
 						}
 					}
 				})
-				.then(() => { // write baseline image
+				.then<any>(() => {
+					// write baseline image
 					if (result.generatedBaseline || result.baselineExists) {
 						const source = result.baseline;
 						const baseline = metadata.baseline = addSuffix(result.baseline);
@@ -161,7 +158,7 @@ export default class {
 				})
 				.then(() => {
 					// Replace screenshot with a filename to avoid leaking memory
-					result.screenshot = metadata.screenshot;
+					result.screenshot = metadata.screenshot!;
 				});
 		}));
 	}
